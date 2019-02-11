@@ -100,6 +100,7 @@ source $ZSH/oh-my-zsh.sh
 alias ga="git add"
 alias gc="git commit"
 alias gd="git diff"
+alias gs="git status"
 alias gf="git fetch"
 alias gp="git pull"
 alias gpr="git pull -r"
