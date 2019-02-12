@@ -1,5 +1,5 @@
-# This is Git's per-user configuration file.
 [user]
-# Please adapt and uncomment the following lines:
-name = Jean-Pierre Gassin
-email = jeanpierre.gassin@gmail.com
+	email = jeanpierre.gassin@gmail.com
+	name = Jean-Pierre Gassin
+[core]
+	excludesfile = /Users/jeanpierregassin/.gitignore_global
