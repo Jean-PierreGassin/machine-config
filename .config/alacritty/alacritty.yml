@@ -18,8 +18,8 @@ window:
   # Specified in number of columns/lines, not pixels.
   # If both are `0`, this setting is ignored.
   dimensions:
-    columns: 120
-    lines: 30
+    columns: 155
+    lines: 40
 
   # Window padding (changes require restart)
   #
@@ -310,6 +310,9 @@ live_config_reload: true
 #  program: /bin/bash
 #  args:
 #    - --login
+shell:
+   program: /usr/local/bin/tmux
+   args: -u
 
 # Windows 10 ConPTY backend (Windows only)
 #
