@@ -97,6 +97,9 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Set TERM variable
+TERM=xterm-256color
+
 alias ga="git add"
 alias gc="git commit"
 alias gd="git diff"
