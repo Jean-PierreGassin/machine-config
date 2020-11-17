@@ -1,5 +1,5 @@
 [user]
 	email = jeanpierre.gassin@gmail.com
-	name = Jean-Pierre Gassin
+	name = \nJean-Pierre Gassin
 [core]
-	excludesfile = /Users/jeanpierregassin/.gitignore_global
+	excludesfile = ~/.gitignore_global

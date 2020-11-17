@@ -36,6 +36,11 @@
 ehthumbs.db
 Thumbs.db
 
+# Project files #
+# ###############
+.idea
+.idea/*
+
 # Third party packages #
 #######################
 node_modules

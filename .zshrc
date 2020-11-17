@@ -109,3 +109,8 @@ alias gf="git fetch"
 alias gp="git pull"
 alias gpr="git pull -r"
 alias gpush="git push"
+
+# Connect to Docker
+# export DOCKER_HOST=tcp://localhost:2375
+
+
