@@ -1,0 +1,7 @@
+IdeaVIM
+com.chrisrm.idea.MaterialThemeUI
+com.intellij.ideolog
+com.kalessil.phpStorm.phpInspectionsEA
+de.espend.idea.laravel
+intellij.prettierJS
+ru.adelf.idea.dotenv
