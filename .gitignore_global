@@ -43,5 +43,6 @@ Thumbs.db
 
 # Third party packages #
 #######################
+app/psysh
 node_modules
 vendor
