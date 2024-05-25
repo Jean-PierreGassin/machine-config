@@ -1,5 +1,5 @@
-[user]
-	email = jeanpierre.gassin@gmail.com
-	name = \nJean-Pierre Gassin
-[core]
-	excludesfile = ~/.gitignore_global
+[includeIf "gitdir:work/"]
+    path = ~/repos/work/.gitconfig
+
+[includeIf "gitdir:personal/"]
+    path = ~/repos/personal/.gitconfig

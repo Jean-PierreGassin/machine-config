@@ -64,6 +64,7 @@ ENABLE_CORRECTION="true"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  git-prompt
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -126,3 +127,9 @@ export CURRENT_UID=$(id -u):$(id -g)
 
 # emulate specified shell and load default profile
 source ~/.profile
+
+
+gitSearch() {
+    #search git history against a file for a string
+    git log --no-merges -c -S"$2" $1
+}
