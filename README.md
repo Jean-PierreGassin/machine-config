@@ -8,6 +8,6 @@ Terminal: Windows Terminal
 
 Multiplixer: tmux (loading this conf will default to using zsh)
 
-Operating system: Windows 10 w/ WSL 2 (Ubuntu-18.04)
+Operating system: Windows 11 w/ WSL 2
 
-__note:__ config for WSL to connect to W10 Docker is in .zshrc however may not be necessary
+__note:__ config for WSL to connect to Windows Docker is in .zshrc however may not be necessary

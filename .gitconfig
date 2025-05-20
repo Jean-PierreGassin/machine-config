@@ -3,3 +3,6 @@
 
 [includeIf "gitdir:personal/"]
     path = ~/repos/personal/.gitconfig
+[core]
+	autocrlf = false
+	safecrlf = false
