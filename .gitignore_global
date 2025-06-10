@@ -40,6 +40,8 @@ Thumbs.db
 # ###############
 .idea
 .idea/*
+.github/copilot-instructions.md
+.github/git-commit-instructions.md
 
 # Third party packages #
 #######################
