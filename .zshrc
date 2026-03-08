@@ -67,7 +67,7 @@ plugins=(
   git-prompt
 )
 
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 
 # User configuration
 
@@ -98,20 +98,33 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Set TERM variable
-TERM=xterm-256color
-
 # enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
+if (( $+commands[dircolors] )); then
+    if [[ -r ~/.dircolors ]]; then
+        eval "$(dircolors -b ~/.dircolors)"
+    else
+        eval "$(dircolors -b)"
+    fi
 fi
+
+case "$(uname -s)" in
+    Darwin)
+        export CLICOLOR=1
+        alias ls='ls -G'
+        alias grep='grep'
+        alias fgrep='grep -F'
+        alias egrep='grep -E'
+        ;;
+    *)
+        alias ls='ls --color=auto'
+        alias grep='grep --color=auto'
+        alias fgrep='grep -F --color=auto'
+        alias egrep='grep -E --color=auto'
+        ;;
+esac
+
+#alias dir='dir --color=auto'
+#alias vdir='vdir --color=auto'
 
 alias ga="git add"
 alias gc="git commit"
@@ -126,12 +139,12 @@ alias gpush="git push"
 export CURRENT_UID=$(id -u):$(id -g)
 
 # emulate specified shell and load default profile
-source ~/.profile
+[[ -r ~/.profile ]] && source ~/.profile
 
 
 gitSearch() {
     #search git history against a file for a string
-    git log --no-merges -c -S"$2" $1
+    git log --no-merges -c -S"$2" -- "$1"
 }
 
 export NVM_DIR="$HOME/.nvm"

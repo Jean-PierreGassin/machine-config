@@ -1,13 +1,16 @@
-# What am I using for local dev?
+# Local dev defaults
 
-CLI Editor: vim
+CLI editor: `vim`
 
-Unix shell: zshell
+Unix shell: `zsh` via Oh My Zsh
 
-Terminal: Windows Terminal
+Terminal: Windows Terminal on WSL, Terminal.app/iTerm2 on macOS
 
-Multiplixer: tmux (loading this conf will default to using zsh)
+Multiplexer: `tmux` with `/bin/zsh` as the default shell
 
-Operating system: Windows 11 w/ WSL 2
+Operating systems: Windows 11 with WSL 2, macOS
 
-__note:__ config for WSL to connect to Windows Docker is in .zshrc however may not be necessary
+Notes:
+- `.gitconfig` includes separate overrides for `~/repos/work` and `~/repos/personal`.
+- `.tmux.conf` prefers `tmux-256color` and falls back to `screen-256color`.
+- `.zshrc` uses platform-specific color aliases for GNU/Linux and macOS.

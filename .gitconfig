@@ -4,5 +4,5 @@
 [includeIf "gitdir:personal/"]
     path = ~/repos/personal/.gitconfig
 [core]
-    eol = lf
-    autocrlf = input
+	autocrlf = input
+	safecrlf = false
