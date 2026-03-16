@@ -2,7 +2,7 @@
 
 CLI editor: `vim`
 
-Unix shell: `zsh` via Oh My Zsh
+Unix shell: `zsh`
 
 Terminal: Windows Terminal on WSL, Terminal.app/iTerm2 on macOS
 
@@ -15,4 +15,3 @@ Notes:
 - `.tmux.conf` prefers `tmux-256color` and falls back to `screen-256color`.
 - `.zshrc` uses platform-specific color aliases for GNU/Linux and macOS.
 
-Using Spaceship for prompt
