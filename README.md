@@ -14,4 +14,5 @@ Notes:
 - `.gitconfig` includes separate overrides for `~/repos/work` and `~/repos/personal`.
 - `.tmux.conf` prefers `tmux-256color` and falls back to `screen-256color`.
 - `.zshrc` uses platform-specific color aliases for GNU/Linux and macOS.
+- **Must** install Starship: https://starship.rs/guide/ (I prefer https://starship.rs/presets/gruvbox-rainbow)
 
