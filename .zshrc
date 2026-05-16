@@ -36,10 +36,10 @@ alias gp="git pull"
 alias gpr="git pull -r"
 alias gpush="git push"
 
-export CURRENT_UID=$(id -u):$(id -g)
+export CURRENT_UID="${UID}:${GID}"
 
-# emulate specified shell and load default profile
 [[ -r ~/.profile ]] && source ~/.profile
+typeset -U path PATH
 
 
 gitSearch() {
@@ -48,7 +48,20 @@ gitSearch() {
 }
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+load_nvm() {
+    unset -f load_nvm nvm node npm npx corepack yarn pnpm
+
+    [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+    [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
+}
+
+nvm() { load_nvm; nvm "$@"; }
+node() { load_nvm; node "$@"; }
+npm() { load_nvm; npm "$@"; }
+npx() { load_nvm; npx "$@"; }
+corepack() { load_nvm; corepack "$@"; }
+yarn() { load_nvm; yarn "$@"; }
+pnpm() { load_nvm; pnpm "$@"; }
 
 eval "$(starship init zsh)"
