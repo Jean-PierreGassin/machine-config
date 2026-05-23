@@ -47,21 +47,58 @@ gitSearch() {
     git log --no-merges -c -S"$2" -- "$1"
 }
 
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+
+resolve_nvm_default_version() {
+    local alias_name="$1"
+    local alias_file
+    local -a versions
+    local -a sorted_versions
+
+    while [[ -n "$alias_name" ]]; do
+        alias_name="${alias_name//$'\r'/}"
+        alias_name="${alias_name//$'\n'/}"
+        alias_name="${alias_name%% *}"
+
+        case "$alias_name" in
+            v*)
+                print -r -- "$alias_name"
+                return 0
+                ;;
+            node|stable)
+                versions=("$NVM_DIR"/versions/node/v*(N/))
+                (( $#versions )) || return 1
+                sorted_versions=(${(On)versions})
+                print -r -- "${sorted_versions[1]:t}"
+                return 0
+                ;;
+        esac
+
+        alias_file="$NVM_DIR/alias/$alias_name"
+        [[ -r "$alias_file" ]] || return 1
+        alias_name="$(<"$alias_file")"
+    done
+
+    return 1
+}
+
+if [[ -r "$NVM_DIR/alias/default" ]]; then
+    nvm_default_version="$(resolve_nvm_default_version "$(<"$NVM_DIR/alias/default")")"
+    nvm_default_bin="$NVM_DIR/versions/node/$nvm_default_version/bin"
+
+    [[ -d "$nvm_default_bin" ]] && path=("$nvm_default_bin" $path)
+
+    unset nvm_default_version nvm_default_bin
+fi
+unset -f resolve_nvm_default_version
 
 load_nvm() {
-    unset -f load_nvm nvm node npm npx corepack yarn pnpm
+    unset -f load_nvm nvm
 
     [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
     [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
 }
 
 nvm() { load_nvm; nvm "$@"; }
-node() { load_nvm; node "$@"; }
-npm() { load_nvm; npm "$@"; }
-npx() { load_nvm; npx "$@"; }
-corepack() { load_nvm; corepack "$@"; }
-yarn() { load_nvm; yarn "$@"; }
-pnpm() { load_nvm; pnpm "$@"; }
 
 eval "$(starship init zsh)"
