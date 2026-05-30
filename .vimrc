@@ -5,10 +5,17 @@ endif
 
 " Keep plain y/p/d on Vim's local unnamed register. Use "+ or "* registers
 " explicitly when you want the platform clipboard.
-set clipboard=
+if has('clipboard')
+  if has('unnamedplus')
+    set clipboard=unnamedplus
+  else
+    set clipboard=unnamed
+  endif
+endif
 set fileformats=unix,dos
 
 " Enable filetype-specific features (still good to keep active)
+syntax on
 filetype plugin indent on
 
 " Global indentation settings for all files

@@ -92,13 +92,38 @@ if [[ -r "$NVM_DIR/alias/default" ]]; then
 fi
 unset -f resolve_nvm_default_version
 
-load_nvm() {
-    unset -f load_nvm nvm
+export NVM_DIR="$HOME/.nvm"
 
-    [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
-    [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
+load_nvm() {
+  unset -f nvm node npm npx 2>/dev/null
+
+  # 1. Homebrew (macOS / Linux)
+  if command -v brew >/dev/null 2>&1; then
+    local brew_prefix
+    brew_prefix="$(brew --prefix nvm 2>/dev/null)"
+
+    if [[ -s "$brew_prefix/nvm.sh" ]]; then
+      source "$brew_prefix/nvm.sh"
+    fi
+
+    if [[ -s "$brew_prefix/etc/bash_completion.d/nvm" ]]; then
+      source "$brew_prefix/etc/bash_completion.d/nvm"
+    fi
+  fi
+
+  # 2. Fallback: standard nvm install
+  if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    source "$NVM_DIR/nvm.sh"
+  fi
+
+  # 3. Replace wrapper with real nvm after first load
+  command -v nvm >/dev/null 2>&1 && {
+    unalias nvm 2>/dev/null
+  }
 }
 
-nvm() { load_nvm; nvm "$@"; }
-
+nvm() {
+  load_nvm
+  nvm "$@"
+}
 eval "$(starship init zsh)"
