@@ -1,4 +1,8 @@
-# enable color support of ls and also add handy aliases
+# Load base profile and de-dupe PATH
+[[ -r ~/.profile ]] && source ~/.profile
+typeset -U path PATH
+
+# Enable color support of ls
 if (( $+commands[dircolors] )); then
     if [[ -r ~/.dircolors ]]; then
         eval "$(dircolors -b ~/.dircolors)"
@@ -7,6 +11,7 @@ if (( $+commands[dircolors] )); then
     fi
 fi
 
+# Add aliases
 case "$(uname -s)" in
     Darwin)
         export CLICOLOR=1
@@ -22,10 +27,6 @@ case "$(uname -s)" in
         alias egrep='grep -E --color=auto'
         ;;
 esac
-
-#alias dir='dir --color=auto'
-#alias vdir='vdir --color=auto'
-
 alias ga="git add"
 alias gc="git commit"
 alias gd="git diff"
@@ -37,16 +38,6 @@ alias gpr="git pull -r"
 alias gpush="git push"
 
 export CURRENT_UID="${UID}:${GID}"
-
-[[ -r ~/.profile ]] && source ~/.profile
-typeset -U path PATH
-
-
-gitSearch() {
-    #search git history against a file for a string
-    git log --no-merges -c -S"$2" -- "$1"
-}
-
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 
 resolve_nvm_default_version() {
@@ -92,7 +83,6 @@ if [[ -r "$NVM_DIR/alias/default" ]]; then
 fi
 unset -f resolve_nvm_default_version
 
-export NVM_DIR="$HOME/.nvm"
 
 load_nvm() {
   unset -f nvm node npm npx 2>/dev/null
@@ -112,6 +102,7 @@ load_nvm() {
   fi
 
   # 2. Fallback: standard nvm install
+  export NVM_DIR="$HOME/.nvm"
   if [[ -s "$NVM_DIR/nvm.sh" ]]; then
     source "$NVM_DIR/nvm.sh"
   fi
@@ -126,4 +117,10 @@ nvm() {
   load_nvm
   nvm "$@"
 }
+
+# Evals
+if command -v brew >/dev/null 2>&1; then
+    eval "$(brew shellenv)"
+fi
+
 eval "$(starship init zsh)"
