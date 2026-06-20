@@ -1,43 +1,29 @@
-# Load base profile and de-dupe PATH
-[[ -r ~/.profile ]] && source ~/.profile
-typeset -U path PATH
+# ============================================================
+# .zshrc
+# ============================================================
 
-# Enable color support of ls
-if (( $+commands[dircolors] )); then
-    if [[ -r ~/.dircolors ]]; then
-        eval "$(dircolors -b ~/.dircolors)"
-    else
-        eval "$(dircolors -b)"
-    fi
+# --- Base profile -------------------------------------------------
+[[ -r ~/.profile ]] && source ~/.profile
+
+# --- Homebrew -------------------------------------------------------
+# Detect brew explicitly by known install location rather than
+# assuming it's already on PATH.
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
-# Add aliases
-case "$(uname -s)" in
-    Darwin)
-        export CLICOLOR=1
-        alias ls='ls -G'
-        alias grep='grep'
-        alias fgrep='grep -F'
-        alias egrep='grep -E'
-        ;;
-    *)
-        alias ls='ls --color=auto'
-        alias grep='grep --color=auto'
-        alias fgrep='grep -F --color=auto'
-        alias egrep='grep -E --color=auto'
-        ;;
-esac
-alias ga="git add"
-alias gc="git commit"
-alias gd="git diff"
-alias gs="git status"
-alias gl="git log"
-alias gf="git fetch"
-alias gp="git pull"
-alias gpr="git pull -r"
-alias gpush="git push"
-
-export CURRENT_UID="${UID}:${GID}"
+# --- Node (nvm) — PATH setup -----------------------------------------
+# Don't source nvm.sh here — it's slow (100ms+ on every shell).
+# Instead, resolve the default version's bin dir manually and
+# prepend it, so `node`/`npm`/`npx` are available immediately.
+# The real `nvm` command lazy-loads on first use, see below.
+#
+# Runs AFTER Homebrew above on purpose: this prepend happens last,
+# so nvm's node wins over any brew-installed node on PATH.
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 
 resolve_nvm_default_version() {
@@ -83,7 +69,59 @@ if [[ -r "$NVM_DIR/alias/default" ]]; then
 fi
 unset -f resolve_nvm_default_version
 
+# --- Local user binaries ---------------------------------------------
+export PATH="$HOME/.local/bin:$PATH"
 
+# --- De-dupe PATH -------------------------------------------------------
+# Run after every PATH-modifying step above, so duplicates introduced
+# by .profile/brew/nvm/local-bin all get cleaned up.
+typeset -U path PATH
+
+# --- Color support for ls/grep ------------------------------------------
+if (( $+commands[dircolors] )); then
+    if [[ -r ~/.dircolors ]]; then
+        eval "$(dircolors -b ~/.dircolors)"
+    else
+        eval "$(dircolors -b)"
+    fi
+fi
+
+# --- Platform-specific aliases --------------------------------------------
+case "$(uname -s)" in
+    Darwin)
+        export CLICOLOR=1
+        alias ls='ls -G'
+        alias grep='grep'
+        alias fgrep='grep -F'
+        alias egrep='grep -E'
+        ;;
+    *)
+        alias ls='ls --color=auto'
+        alias grep='grep --color=auto'
+        alias fgrep='grep -F --color=auto'
+        alias egrep='grep -E --color=auto'
+        ;;
+esac
+
+# --- Git shortcuts -----------------------------------------------------------
+alias ga="git add"
+alias gc="git commit"
+alias gd="git diff"
+alias gs="git status"
+alias gl="git log"
+alias gf="git fetch"
+alias gp="git pull"
+alias gpr="git pull -r"
+alias gpush="git push"
+
+# --- Misc env --------------------------------------------------------------------
+export CURRENT_UID="${UID}:${GID}"
+
+# --- Node (nvm) — lazy-load wrapper -----------------------------------------------
+# The default node version's bin dir is already on PATH (set above), so
+# `node`/`npm`/`npx` work immediately without this ever running. The real
+# `nvm` command (needed to switch versions) only loads the first time you
+# actually call `nvm`.
 load_nvm() {
   unset -f nvm node npm npx 2>/dev/null
 
@@ -118,10 +156,5 @@ nvm() {
   nvm "$@"
 }
 
-# Evals
-if command -v brew >/dev/null 2>&1; then
-    eval "$(brew shellenv)"
-fi
-
-export PATH="$HOME/.local/bin:$PATH"
+# --- Prompt (keep last) --------------------------------------------------------------
 eval "$(starship init zsh)"
