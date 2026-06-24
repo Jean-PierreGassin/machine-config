@@ -1,35 +1,13 @@
 # ============================================================
 # Global defaults
+# Template used by install.sh to generate machine-local Git config.
 # ============================================================
 [user]
-    # Default identity — used everywhere EXCEPT inside ~/repos/work
-    # or ~/repos/personal, which override this via the includeIf
-    # blocks below.
-	name = Jean-Pierre Gassin
-	email = jeanpierre.gassin@gmail.com
+	name = {{GIT_USER_NAME}}
+	email = {{GIT_USER_EMAIL}}
 
 [core]
-    autocrlf = input
-    safecrlf = false
-	excludesfile = /Users/jp/.gitignore_global
-
-# ============================================================
-# Directory-specific overrides
-#
-# Anchored to the specific ~/repos/work and ~/repos/personal paths
-# (trailing slash = that dir and everything nested under it) rather
-# than a bare "work/"/"personal/" pattern, which would otherwise
-# match ANY repo path containing that word anywhere, e.g.
-# ~/projects/work-stuff/.
-#
-# These come AFTER the global defaults above on purpose: git config
-# is last-value-wins, so placing includes after [user]/[core] means
-# a per-directory file can still override identity/autocrlf for that
-# tree. If they were placed before, the blocks above would always
-# win regardless of what the included files set.
-# ============================================================
-[includeIf "gitdir:~/repos/work/"]
-    path = ~/repos/work/.gitconfig
-
-[includeIf "gitdir:~/repos/personal/"]
-    path = ~/repos/personal/.gitconfig
+	autocrlf = input
+	safecrlf = false
+	excludesfile = ~/.gitignore_global
+# {{GIT_INCLUDE_BLOCKS}}

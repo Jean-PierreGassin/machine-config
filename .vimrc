@@ -31,7 +31,7 @@ filetype plugin indent on
 "
 " NOTE: this is 2-space for everything, which suits JS/TS/Vue/YAML
 " but not PHP (PSR-12 wants 4-space). Vim doesn't read .editorconfig
-" natively — either add a `:autocmd FileType php setlocal ts=4 sw=4`
+" natively. Either add a `:autocmd FileType php setlocal ts=4 sw=4`
 " override here, or install the editorconfig-vim plugin so it picks
 " up each project's .editorconfig automatically.
 " ============================================================

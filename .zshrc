@@ -16,8 +16,8 @@ elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
-# --- Node (nvm) — PATH setup -----------------------------------------
-# Don't source nvm.sh here — it's slow (100ms+ on every shell).
+# --- Node (nvm) PATH setup -----------------------------------------
+# Don't source nvm.sh here. It is slow (100ms+ on every shell).
 # Instead, resolve the default version's bin dir manually and
 # prepend it, so `node`/`npm`/`npx` are available immediately.
 # The real `nvm` command lazy-loads on first use, see below.
@@ -117,7 +117,7 @@ alias gpush="git push"
 # --- Misc env --------------------------------------------------------------------
 export CURRENT_UID="${UID}:${GID}"
 
-# --- Node (nvm) — lazy-load wrapper -----------------------------------------------
+# --- Node (nvm) lazy-load wrapper -----------------------------------------------
 # The default node version's bin dir is already on PATH (set above), so
 # `node`/`npm`/`npx` work immediately without this ever running. The real
 # `nvm` command (needed to switch versions) only loads the first time you
@@ -126,18 +126,19 @@ load_nvm() {
   unset -f nvm node npm npx 2>/dev/null
 
   # 1. Homebrew (macOS / Linux)
-  if command -v brew >/dev/null 2>&1; then
-    local brew_prefix
-    brew_prefix="$(brew --prefix nvm 2>/dev/null)"
-
-    if [[ -s "$brew_prefix/nvm.sh" ]]; then
-      source "$brew_prefix/nvm.sh"
+  local brew_nvm_prefix
+  for brew_nvm_prefix in /opt/homebrew/opt/nvm /usr/local/opt/nvm /home/linuxbrew/.linuxbrew/opt/nvm; do
+    if [[ -s "$brew_nvm_prefix/nvm.sh" ]]; then
+      source "$brew_nvm_prefix/nvm.sh"
     fi
 
-    if [[ -s "$brew_prefix/etc/bash_completion.d/nvm" ]]; then
-      source "$brew_prefix/etc/bash_completion.d/nvm"
+    if [[ -s "$brew_nvm_prefix/etc/bash_completion.d/nvm" ]]; then
+      source "$brew_nvm_prefix/etc/bash_completion.d/nvm"
     fi
-  fi
+
+    command -v nvm >/dev/null 2>&1 && break
+  done
+  unset brew_nvm_prefix
 
   # 2. Fallback: standard nvm install
   export NVM_DIR="$HOME/.nvm"
@@ -157,4 +158,6 @@ nvm() {
 }
 
 # --- Prompt (keep last) --------------------------------------------------------------
-eval "$(starship init zsh)"
+if [[ "${TERM:-}" != "dumb" ]] && command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
