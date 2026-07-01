@@ -451,7 +451,7 @@ write_scoped_gitconfig() {
 # ============================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.machine-config-backup-$(date +%Y%m%d-%H%M%S)"
-DOTFILES=(.gitignore_global .tmux.conf .vimrc .zshrc)
+DOTFILES=(.gitignore_global .tmux.conf .vimrc .wezterm.lua .zshrc)
 
 ASSUME_YES=0
 VERBOSE=0
@@ -671,7 +671,7 @@ configure_starship() {
   local starship_config="$HOME/.config/starship.toml"
 
   if [[ -e "$starship_config" || -L "$starship_config" ]]; then
-    if confirm "Replace existing ~/.config/starship.toml with the Gruvbox Rainbow preset?"; then
+    if confirm "Replace existing ~/.config/starship.toml with the Pure preset?"; then
       backup_existing_path "$starship_config" "starship.toml"
     else
       warn "Skipping Starship preset setup"
@@ -680,8 +680,8 @@ configure_starship() {
   fi
 
   mkdir -p "$HOME/.config"
-  run_quiet "Writing Starship Gruvbox Rainbow preset..." starship preset gruvbox-rainbow -o "$starship_config"
-  ok "Starship Gruvbox Rainbow preset written"
+  run_quiet "Writing Starship Pure preset..." starship preset pure-preset -o "$starship_config"
+  ok "Starship Pure preset written"
 }
 
 case "$PKG_MANAGER" in
