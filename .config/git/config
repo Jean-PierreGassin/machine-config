@@ -9,5 +9,5 @@
 [core]
 	autocrlf = input
 	safecrlf = false
-	excludesfile = ~/.gitignore_global
+	excludesfile = ~/.config/git/ignore
 # {{GIT_INCLUDE_BLOCKS}}

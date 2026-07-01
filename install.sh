@@ -8,7 +8,8 @@
 #      (Homebrew on macOS, apt on Debian/Ubuntu/WSL)
 #   3. Installs the tools these dotfiles assume exist
 #      (zsh, tmux, vim, git, starship, nvm)
-#   4. Symlinks the dotfiles into $HOME, backing up anything
+#   4. Symlinks native config files into $HOME/.config and keeps
+#      zsh config in $HOME, backing up anything
 #      already there instead of overwriting it
 #   5. Generates machine-local Git config, offers optional SSH keys,
 #      and sets zsh as the default shell
@@ -304,6 +305,7 @@ prepare_generated_file() {
   local backup_name="$2"
   local prompt="$3"
 
+  mkdir -p "$(dirname "$path")"
   if [[ -e "$path" || -L "$path" ]]; then
     if confirm "$prompt"; then
       backup_existing_path "$path" "$backup_name"
@@ -313,6 +315,20 @@ prepare_generated_file() {
   fi
 
   return 0
+}
+
+retire_legacy_path() {
+  local path="$1"
+  local backup_name="$2"
+  local reason="$3"
+
+  if [[ -e "$path" || -L "$path" ]]; then
+    if confirm "Back up legacy $(display_config_dir "$path") now that $reason?"; then
+      backup_existing_path "$path" "$backup_name"
+    else
+      warn "Leaving legacy $(display_config_dir "$path") in place"
+    fi
+  fi
 }
 
 ensure_ssh_key() {
@@ -375,7 +391,7 @@ render_global_gitconfig() {
   local personal_config_path
   local personal_gitdir
 
-  template="$(<"$SCRIPT_DIR/.gitconfig")"
+  template="$(<"$SCRIPT_DIR/.config/git/config")"
 
   if [[ -n "$work_dir" || -n "$personal_dir" ]]; then
     include_blocks+=$'\n'
@@ -451,7 +467,13 @@ write_scoped_gitconfig() {
 # ============================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.machine-config-backup-$(date +%Y%m%d-%H%M%S)"
-DOTFILES=(.gitignore_global .tmux.conf .vimrc .wezterm.lua .zshrc)
+HOME_DOTFILES=(.zshrc)
+CONFIG_FILES=(
+  ".config/git/ignore"
+  ".config/tmux/tmux.conf"
+  ".config/vim/vimrc"
+  ".config/wezterm/wezterm.lua"
+)
 
 ASSUME_YES=0
 VERBOSE=0
@@ -479,6 +501,7 @@ step "Detecting platform"
 
 OS="unknown"
 PKG_MANAGER="none"
+APT_GET=""
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
   OS="macos"
@@ -489,7 +512,8 @@ elif [[ "$(uname -s)" == "Linux" ]]; then
   else
     OS="linux"
   fi
-  if command -v apt-get >/dev/null 2>&1; then
+  APT_GET="$(type -P apt-get || true)"
+  if [[ -n "$APT_GET" && -x "$APT_GET" ]]; then
     PKG_MANAGER="apt"
   fi
 fi
@@ -585,8 +609,12 @@ install_with_apt() {
     err "Failed: checking sudo access for apt."
     return 1
   fi
-  run_quiet "Updating apt package lists..." sudo apt-get update
-  run_quiet "Installing apt packages..." sudo apt-get install -y "${APT_PACKAGES[@]}"
+  if [[ -z "$APT_GET" || ! -x "$APT_GET" ]]; then
+    err "apt-get was detected earlier but is no longer available."
+    return 1
+  fi
+  run_quiet "Updating apt package lists..." sudo "$APT_GET" update
+  run_quiet "Installing apt packages..." sudo "$APT_GET" install -y "${APT_PACKAGES[@]}"
   ok "apt packages installed"
 
   # starship and nvm are not in apt, install via their official scripts
@@ -698,12 +726,12 @@ configure_starship
 # ============================================================
 # 3. Symlink dotfiles
 # ============================================================
-step "Symlinking dotfiles into \$HOME"
+step "Symlinking config files"
 
 mkdir -p "$BACKUP_DIR"
 backed_up_any=0
 
-for file in "${DOTFILES[@]}"; do
+for file in "${HOME_DOTFILES[@]}"; do
   src="$SCRIPT_DIR/$file"
   dest="$HOME/$file"
 
@@ -730,12 +758,45 @@ for file in "${DOTFILES[@]}"; do
   ok "Linked ~/$file -> $src"
 done
 
+for file in "${CONFIG_FILES[@]}"; do
+  src="$SCRIPT_DIR/$file"
+  dest="$HOME/$file"
+
+  if [[ ! -e "$src" ]]; then
+    warn "$file not found in repo, skipping"
+    continue
+  fi
+
+  if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
+    ok "$file already linked correctly"
+    continue
+  fi
+
+  if [[ -e "$dest" || -L "$dest" ]]; then
+    if confirm "$file already exists at ~/$file. Back it up and replace with the symlink?"; then
+      backup_existing_path "$dest" "${file//\//-}"
+    else
+      warn "Skipping $file, left existing file untouched"
+      continue
+    fi
+  fi
+
+  mkdir -p "$(dirname "$dest")"
+  ln -s "$src" "$dest"
+  ok "Linked ~/$file -> $src"
+done
+
+retire_legacy_path "$HOME/.gitignore_global" ".gitignore_global" "Git ignore rules live at ~/.config/git/ignore"
+retire_legacy_path "$HOME/.tmux.conf" ".tmux.conf" "tmux config lives at ~/.config/tmux/tmux.conf"
+retire_legacy_path "$HOME/.vimrc" ".vimrc" "Vim config lives at ~/.config/vim/vimrc"
+retire_legacy_path "$HOME/.wezterm.lua" ".wezterm.lua" "WezTerm config lives at ~/.config/wezterm/wezterm.lua"
+
 # ============================================================
 # 4. Git config and one-time shell settings
 # ============================================================
 step "Git config"
 
-gitconfig_path="$HOME/.gitconfig"
+gitconfig_path="$HOME/.config/git/config"
 git_name="${GIT_USER_NAME:-}"
 git_email="${GIT_USER_EMAIL:-}"
 global_ssh_key=""
@@ -758,7 +819,7 @@ if [[ "${ASSUME_YES:-0}" == "1" ]]; then
     global_ssh_key="$HOME/.ssh/id_ed25519"
   fi
 else
-  info "This writes a machine-local ~/.gitconfig with the identity and repo roots you choose."
+  info "This writes a machine-local ~/.config/git/config with the identity and repo roots you choose."
   info "Leave work/personal directories blank if this machine only needs one global Git identity."
   git_name="$(prompt_required_value "Git user.name" "$(current_git_config_value user.name)")"
   git_email="$(prompt_required_value "Git user.email" "$(current_git_config_value user.email)")"
@@ -803,7 +864,7 @@ if [[ -n "$git_name" && -n "$git_email" ]]; then
     personal_dir=""
   fi
 
-  if prepare_generated_file "$gitconfig_path" ".gitconfig" "Replace existing ~/.gitconfig with a generated config using these values?"; then
+  if prepare_generated_file "$gitconfig_path" ".config-git-config" "Replace existing ~/.config/git/config with a generated config using these values?"; then
     if [[ -n "$work_dir" || -n "$personal_dir" ]]; then
       global_ssh_key=""
     else
@@ -812,20 +873,21 @@ if [[ -n "$git_name" && -n "$git_email" ]]; then
 
     render_global_gitconfig "$git_name" "$git_email" "$work_dir" "$personal_dir" > "$gitconfig_path"
 
-    ok "~/.gitconfig generated"
+    ok "~/.config/git/config generated"
+    retire_legacy_path "$HOME/.gitconfig" ".gitconfig" "global Git config lives at ~/.config/git/config"
     global_gitconfig_generated=1
   else
-    warn "Skipping ~/.gitconfig generation"
+    warn "Skipping ~/.config/git/config generation"
   fi
 
   if [[ "$global_gitconfig_generated" == "1" ]]; then
     write_scoped_gitconfig "work" "$work_dir" "$work_name" "$work_email" "$work_ssh_key"
     write_scoped_gitconfig "personal" "$personal_dir" "$personal_name" "$personal_email" "$personal_ssh_key"
   elif [[ -n "$work_dir" || -n "$personal_dir" ]]; then
-    warn "Skipping scoped Git configs because ~/.gitconfig was not generated."
+    warn "Skipping scoped Git configs because ~/.config/git/config was not generated."
   fi
 else
-  warn "Skipping ~/.gitconfig generation because git user.name and user.email are required."
+  warn "Skipping ~/.config/git/config generation because git user.name and user.email are required."
 fi
 
 step "Login shell"
