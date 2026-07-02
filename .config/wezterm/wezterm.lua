@@ -28,7 +28,7 @@ config.window_frame = {
   active_titlebar_bg = rose_pine.base,
   inactive_titlebar_bg = rose_pine.base,
   font = wezterm.font('JetBrains Mono', { weight = 'Regular' }),
-  font_size = 13,
+  font_size = 14,
 }
 
 config.colors = {
@@ -58,5 +58,98 @@ config.inactive_pane_hsb = { saturation = 0.9, brightness = 0.7 }
 config.window_background_opacity = 0.9
 config.macos_window_background_blur = 20
 config.window_decorations = 'RESIZE'
+
+-- start tmux mimic config for panes and leader key mapping
+
+config.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 2000 }
+
+local action = wezterm.action
+
+config.keys = {
+  {
+    key = "|",
+    mods = "LEADER",
+    action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
+  },
+  {
+    key = "h",
+    mods = "LEADER",
+    action = action.ActivatePaneDirection('Left')
+  },
+  {
+    key = "j",
+    mods = "LEADER",
+    action = action.ActivatePaneDirection('Down')
+  },
+  {
+    key = "k",
+    mods = "LEADER",
+    action = action.ActivatePaneDirection('Up')
+  },
+  {
+    key = "l",
+    mods = "LEADER",
+    action = action.ActivatePaneDirection('Right')
+  },
+  {
+    key = "h",
+    mods = "CTRL|SHIFT",
+    action = action.AdjustPaneSize({ "Left", 5 }),
+  },
+  {
+    key = "l",
+    mods = "CTRL|SHIFT",
+    action = action.AdjustPaneSize({ "Right", 5 }),
+  },
+  {
+    key = "j",
+    mods = "CTRL|SHIFT",
+    action = action.AdjustPaneSize({ "Down", 5 }),
+  },
+  {
+    key = "k",
+    mods = "CTRL|SHIFT",
+    action = action.AdjustPaneSize({ "Up", 5 }),
+  },
+  {
+    key = "-",
+    mods = "LEADER",
+    action = action.SplitVertical({ domain = "CurrentPaneDomain" }),
+  },
+  {
+    key = "m",
+    mods = "LEADER",
+    action = action.TogglePaneZoomState,
+  },
+  { key = "[", mods = "LEADER", action = action.ActivateCopyMode },
+  {
+    key = "c",
+    mods = "LEADER",
+    action = action.SpawnTab("CurrentPaneDomain"),
+  },
+  {
+    key = "p",
+    mods = "LEADER",
+    action = action.ActivateTabRelative(-1),
+  },
+  {
+    key = "n",
+    mods = "LEADER",
+    action = action.ActivateTabRelative(1),
+  },
+  {
+    key = 'x',
+    mods = 'LEADER',
+    action = action.CloseCurrentPane { confirm = true },
+  },
+}
+
+for i = 1, 9 do
+  table.insert(config.keys, {
+    key = tostring(i),
+    mods = "LEADER",
+    action = action.ActivateTab(i - 1),
+  })
+end
 
 return config
