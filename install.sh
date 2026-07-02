@@ -7,7 +7,7 @@
 #   2. Installs required package-manager and tool dependencies
 #      (Homebrew on macOS, apt on Debian/Ubuntu/WSL)
 #   3. Installs the tools these dotfiles assume exist
-#      (zsh, tmux, vim, git, starship, nvm)
+#      (zsh, vim, git, starship, nvm)
 #   4. Symlinks native config files into $HOME/.config and keeps
 #      zsh config in $HOME, backing up anything
 #      already there instead of overwriting it
@@ -470,7 +470,6 @@ BACKUP_DIR="$HOME/.machine-config-backup-$(date +%Y%m%d-%H%M%S)"
 HOME_DOTFILES=(.zshrc)
 CONFIG_FILES=(
   ".config/git/ignore"
-  ".config/tmux/tmux.conf"
   ".config/vim/vimrc"
   ".config/wezterm/wezterm.lua"
 )
@@ -586,8 +585,8 @@ install_homebrew() {
   ok "Homebrew installed"
 }
 
-BREW_PACKAGES=(zsh tmux vim git starship nvm)
-APT_PACKAGES=(zsh tmux vim git curl build-essential)
+BREW_PACKAGES=(zsh vim git starship nvm)
+APT_PACKAGES=(zsh vim git curl build-essential)
 
 install_with_brew() {
   install_homebrew
@@ -787,7 +786,6 @@ for file in "${CONFIG_FILES[@]}"; do
 done
 
 retire_legacy_path "$HOME/.gitignore_global" ".gitignore_global" "Git ignore rules live at ~/.config/git/ignore"
-retire_legacy_path "$HOME/.tmux.conf" ".tmux.conf" "tmux config lives at ~/.config/tmux/tmux.conf"
 retire_legacy_path "$HOME/.vimrc" ".vimrc" "Vim config lives at ~/.config/vim/vimrc"
 retire_legacy_path "$HOME/.wezterm.lua" ".wezterm.lua" "WezTerm config lives at ~/.config/wezterm/wezterm.lua"
 

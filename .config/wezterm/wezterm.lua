@@ -59,7 +59,7 @@ config.window_background_opacity = 0.9
 config.macos_window_background_blur = 20
 config.window_decorations = 'RESIZE'
 
--- start tmux mimic config for panes and leader key mapping
+-- Pane and leader key mappings.
 
 config.leader = { key = "a", mods = "CTRL", timeout_milliseconds = 2000 }
 

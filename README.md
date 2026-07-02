@@ -6,8 +6,6 @@ Unix shell: `zsh`
 
 Terminal: WezTerm cross-platform
 
-Multiplexer: `tmux` with `$SHELL` as the default shell
-
 Operating systems: Windows 11 with WSL 2, macOS
 
 ## Setup
@@ -20,7 +18,7 @@ cd ~/repos/machine-config
 
 This will:
 - Install Homebrew (macOS) or use apt (Linux/WSL)
-- Install zsh, tmux, vim, git, starship, and nvm
+- Install zsh, vim, git, starship, and nvm
 - Configure Starship with the Pure preset
 - Symlink native config files into `~/.config`, and `~/.zshrc` into `$HOME`
 - Generate `~/.config/git/config` from your prompted identity, with optional work/personal repo overrides
@@ -32,8 +30,7 @@ Re-running it is safe. It skips anything already installed or linked correctly. 
 Notes:
 - `~/.config/git/config` is generated from the repo's `.config/git/config` template rather than symlinked. Optional work/personal directories get their own `.gitconfig` and SSH key path.
 - Global-only setup can create `~/.ssh/id_ed25519`, but leaves key selection to SSH defaults.
-- `.config/git/ignore`, `.config/tmux/tmux.conf`, `.config/vim/vimrc`, and `.config/wezterm/wezterm.lua` use native config paths.
-- `.config/tmux/tmux.conf` prefers `tmux-256color` and falls back to `screen-256color`.
+- `.config/git/ignore`, `.config/vim/vimrc`, and `.config/wezterm/wezterm.lua` use native config paths.
 - `.zshrc` uses platform-specific color aliases for GNU/Linux and macOS.
 - `.zshrc` enables Starship only when the `starship` command exists.
 - `.config/wezterm/wezterm.lua` configures WezTerm with JetBrains Mono, Rose Pine, tabs, bell notifications, and pane dimming.
