@@ -2,7 +2,7 @@ local wezterm = require 'wezterm'
 
 local config = wezterm.config_builder()
 
-config.initial_cols = 180
+config.initial_cols = 200
 config.initial_rows = 50
 
 config.font = wezterm.font('JetBrains Mono')
