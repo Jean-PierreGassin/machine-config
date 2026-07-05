@@ -3,7 +3,7 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 config.initial_cols = 180
-config.initial_rows = 40
+config.initial_rows = 50
 
 config.font = wezterm.font('JetBrains Mono')
 config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
