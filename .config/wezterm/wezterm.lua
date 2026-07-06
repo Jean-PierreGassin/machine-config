@@ -40,6 +40,8 @@ config.colors = {
     new_tab = { bg_color = rose_pine.base, fg_color = rose_pine.muted },
     new_tab_hover = { bg_color = rose_pine.surface, fg_color = rose_pine.text },
   },
+  selection_bg = '#FFFFFF',
+  selection_fg = '#000000',
 }
 
 config.window_close_confirmation = 'NeverPrompt'
