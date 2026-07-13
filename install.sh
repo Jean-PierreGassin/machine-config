@@ -566,17 +566,34 @@ install_homebrew() {
     return
   fi
   local homebrew_installer
+  local sudo_keepalive_pid
 
-  homebrew_installer="$(make_temp_file "Homebrew installer" "${TMPDIR:-/tmp}/homebrew-install.XXXXXX")" || return 1
+  info "Checking sudo access for the Homebrew installer..."
+  if ! sudo -v; then
+    err "Failed: checking sudo access for Homebrew."
+    return 1
+  fi
+
+  # Homebrew's installer runs with NONINTERACTIVE=1 below, which makes it
+  # use `sudo -n` internally and never prompt for a password. On a fresh
+  # machine with no cached sudo credentials that aborts with "Need sudo
+  # access on macOS...", so keep the timestamp alive ourselves.
+  ( while true; do sudo -n -v; sleep 60; done ) 2>/dev/null &
+  sudo_keepalive_pid=$!
+
+  homebrew_installer="$(make_temp_file "Homebrew installer" "${TMPDIR:-/tmp}/homebrew-install.XXXXXX")" || { kill "$sudo_keepalive_pid" 2>/dev/null; return 1; }
   if ! run_quiet "Downloading Homebrew installer..." curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$homebrew_installer"; then
     rm -f "$homebrew_installer"
+    kill "$sudo_keepalive_pid" 2>/dev/null
     return 1
   fi
   if ! run_quiet "Setting up Homebrew..." env NONINTERACTIVE=1 /bin/bash "$homebrew_installer"; then
     rm -f "$homebrew_installer"
+    kill "$sudo_keepalive_pid" 2>/dev/null
     return 1
   fi
   rm -f "$homebrew_installer"
+  kill "$sudo_keepalive_pid" 2>/dev/null
 
   if ! load_brew_shellenv; then
     err "Homebrew installed but brew could not be added to this shell."
