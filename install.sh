@@ -469,6 +469,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.machine-config-backup-$(date +%Y%m%d-%H%M%S)"
 HOME_DOTFILES=(.zshrc)
 CONFIG_FILES=(
+  ".config/ghostty/config"
   ".config/git/ignore"
   ".config/vim/vimrc"
   ".config/wezterm/wezterm.lua"
