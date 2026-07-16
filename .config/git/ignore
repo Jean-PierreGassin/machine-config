@@ -48,3 +48,5 @@ Thumbs.db
 app/psysh
 node_modules
 vendor
+
+**/.claude/settings.local.json
