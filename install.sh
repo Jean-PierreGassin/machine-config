@@ -149,7 +149,7 @@ prompt_required_value() {
       printf "%s\n" "$value"
       return 0
     fi
-    warn "$prompt is required."
+    warn "$prompt is required." >&2
   done
 }
 
@@ -604,7 +604,7 @@ install_homebrew() {
 }
 
 BREW_PACKAGES=(zsh vim git starship nvm)
-APT_PACKAGES=(zsh vim git curl build-essential)
+APT_PACKAGES=(zsh vim-gtk3 git curl build-essential)
 
 install_with_brew() {
   install_homebrew
