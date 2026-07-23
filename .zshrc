@@ -16,6 +16,14 @@ elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
+# Add Homebrew completions directory to fpath
+if type brew &>/dev/null; then
+  fpath=( "$(brew --prefix)/share/zsh/site-functions" $fpath )
+fi
+
+# Initialize the autocompletion system
+autoload -Uz compinit && compinit
+
 # --- Node (nvm) PATH setup -----------------------------------------
 # Don't source nvm.sh here. It is slow (100ms+ on every shell).
 # Instead, resolve the default version's bin dir manually and
@@ -157,7 +165,27 @@ nvm() {
   nvm "$@"
 }
 
+function tixshell() {
+  local target_dir=~/repos/TixShell
+  local current_dir=$(pwd)
+
+  if [[ "$current_dir" != "$target_dir" && "$current_dir" != "$target_dir/"* ]]; then
+    cd "$target_dir" || return
+    ./tixshell
+  else
+    "$target_dir"/tixshell
+  fi
+}
+
 # --- Prompt (keep last) --------------------------------------------------------------
 if [[ "${TERM:-}" != "dumb" ]] && command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
+
+# pnpm
+export PNPM_HOME="/Users/jp/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
