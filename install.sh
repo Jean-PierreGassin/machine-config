@@ -471,6 +471,7 @@ HOME_DOTFILES=(.zshrc)
 CONFIG_FILES=(
   ".config/ghostty/config"
   ".config/git/ignore"
+  ".config/starship.toml"
   ".config/vim/vimrc"
   ".config/wezterm/wezterm.lua"
 )
@@ -698,35 +699,17 @@ detect_nerd_font() {
   return 1
 }
 
-configure_starship() {
-  step "Starship preset"
+# The Starship config itself is tracked in the repo and symlinked with the other
+# config files, so this only reports on the font the prompt glyphs need.
+check_nerd_font() {
+  step "Nerd Font"
   local nerd_font
-
-  if ! command -v starship >/dev/null 2>&1; then
-    warn "Starship is not installed, skipping preset setup"
-    return
-  fi
 
   if nerd_font="$(detect_nerd_font)"; then
     ok "Nerd Font detected ($nerd_font)"
   else
     warn "No Nerd Font detected. Install and select one in your terminal, for example FiraMono Nerd Font Mono."
   fi
-
-  local starship_config="$HOME/.config/starship.toml"
-
-  if [[ -e "$starship_config" || -L "$starship_config" ]]; then
-    if confirm "Replace existing ~/.config/starship.toml with the Pure preset?"; then
-      backup_existing_path "$starship_config" "starship.toml"
-    else
-      warn "Skipping Starship preset setup"
-      return
-    fi
-  fi
-
-  mkdir -p "$HOME/.config"
-  run_quiet "Writing Starship Pure preset..." starship preset pure-preset -o "$starship_config"
-  ok "Starship Pure preset written"
 }
 
 case "$PKG_MANAGER" in
@@ -738,7 +721,7 @@ case "$PKG_MANAGER" in
     ;;
 esac
 
-configure_starship
+check_nerd_font
 
 # ============================================================
 # 3. Symlink dotfiles
