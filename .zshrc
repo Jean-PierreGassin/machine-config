@@ -177,6 +177,24 @@ function tixshell() {
   fi
 }
 
+# --- Devbox shell banner -----------------------------------------------------------------
+# devbox unconditionally prepends a quiet "(devbox) " to PS1 with no way to turn it
+# off, and it is easy to miss weeks later. Surface it as a starship banner line
+# instead: export the project name for starship to render, then drop devbox's own
+# prefix. The prefix is applied after this file is sourced, so it has to be stripped
+# from a precmd hook rather than here.
+if [[ -n "${DEVBOX_SHELL_ENABLED:-}" && -n "${DEVBOX_PROJECT_ROOT:-}" ]]; then
+  export DEVBOX_NAME="${DEVBOX_PROJECT_ROOT:t}"
+
+  _strip_devbox_ps1_prefix() {
+    PS1="${PS1#\(devbox\) }"
+    precmd_functions=(${precmd_functions:#_strip_devbox_ps1_prefix})
+    unset -f _strip_devbox_ps1_prefix
+  }
+  typeset -ag precmd_functions
+  precmd_functions+=(_strip_devbox_ps1_prefix)
+fi
+
 # --- Prompt (keep last) --------------------------------------------------------------
 if [[ "${TERM:-}" != "dumb" ]] && command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
