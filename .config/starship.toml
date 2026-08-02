@@ -1,0 +1,59 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+${env_var.DEVBOX_NAME}\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$line_break\
+$python\
+$character"""
+
+# Banner line shown only inside a devbox shell. DEVBOX_NAME is exported by
+# .zshrc; env_var renders nothing when it is unset, so normal shells are
+# unaffected and no subprocess runs on each prompt.
+[env_var.DEVBOX_NAME]
+variable = "DEVBOX_NAME"
+style = "fg:black bg:175"
+format = "[ $env_value \\(devbox\\) ]($style)\n"
+
+[directory]
+style = "blue"
+
+[character]
+success_symbol = "[❯](purple)"
+error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](green)"
+
+[git_branch]
+format = "[$branch]($style)"
+style = "bright-black"
+
+[git_status]
+format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style)"
+style = "cyan"
+conflicted = "​"
+untracked = "​"
+modified = "​"
+staged = "​"
+renamed = "​"
+deleted = "​"
+stashed = "≡"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bright-black"
+
+[cmd_duration]
+format = "[$duration]($style) "
+style = "yellow"
+
+[python]
+format = "[$virtualenv]($style) "
+style = "bright-black"
+detect_extensions = []
+detect_files = []
