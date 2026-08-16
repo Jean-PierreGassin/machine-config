@@ -112,17 +112,6 @@ case "$(uname -s)" in
         ;;
 esac
 
-# --- Git shortcuts -----------------------------------------------------------
-alias ga="git add"
-alias gc="git commit"
-alias gd="git diff"
-alias gs="git status"
-alias gl="git log"
-alias gf="git fetch"
-alias gp="git pull"
-alias gpr="git pull -r"
-alias gpush="git push"
-
 # --- Misc env --------------------------------------------------------------------
 export CURRENT_UID="${UID}:${GID}"
 
