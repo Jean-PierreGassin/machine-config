@@ -23,6 +23,7 @@ fi
 
 # Initialize the autocompletion system
 autoload -Uz compinit && compinit
+_comp_options+=(globdots)
 
 # --- Node (nvm) PATH setup -----------------------------------------
 # Don't source nvm.sh here. It is slow (100ms+ on every shell).
