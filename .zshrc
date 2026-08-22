@@ -157,7 +157,8 @@ nvm() {
 
 function tixshell() {
   local target_dir=~/repos/TixShell
-  local current_dir=$(pwd)
+  local current_dir
+  current_dir="$(pwd)"
 
   if [[ "$current_dir" != "$target_dir" && "$current_dir" != "$target_dir/"* ]]; then
     cd "$target_dir" || return
@@ -190,10 +191,8 @@ if [[ "${TERM:-}" != "dumb" ]] && command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
-# pnpm
-export PNPM_HOME="/Users/jp/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME/bin:"*) ;;
-  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
-esac
-# pnpm end
+# --- pnpm ------------------------------------------------------------------------
+if [[ -d "${PNPM_HOME:-$HOME/Library/pnpm}" ]]; then
+  export PNPM_HOME="${PNPM_HOME:-$HOME/Library/pnpm}"
+  path=("$PNPM_HOME" $path)
+fi
