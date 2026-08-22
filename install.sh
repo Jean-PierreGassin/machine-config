@@ -498,8 +498,10 @@ CONFIG_FILES=(
 ASSUME_YES=0
 VERBOSE=0
 if [[ -e "$HOME/.config/git/config" || -L "$HOME/.config/git/config" ]]; then
+  SETUP_GIT=0
   SETUP_SSH=0
 else
+  SETUP_GIT=1
   SETUP_SSH=1
 fi
 
@@ -507,19 +509,24 @@ for arg in "$@"; do
   case "$arg" in
     -y|--yes) ASSUME_YES=1 ;;
     --verbose) VERBOSE=1 ;;
-    --setup-ssh) SETUP_SSH=1 ;;
+    --setup-git) SETUP_GIT=1 ;;
+    --setup-ssh)
+      SETUP_GIT=1
+      SETUP_SSH=1
+      ;;
     -h|--help)
       printf '%s\n' \
-        "Usage: ./install.sh [-y|--yes] [--verbose] [--setup-ssh]" \
+        "Usage: ./install.sh [-y|--yes] [--verbose] [--setup-git] [--setup-ssh]" \
         "  -y, --yes   Answer yes to ordinary prompts. Git config needs GIT_USER_NAME/GIT_USER_EMAIL; SSH keys need CREATE_SSH_KEYS=1." \
         "  --verbose   Show package manager and installer command output." \
+        "  --setup-git Reconfigure Git identity and repository scopes." \
         "  --setup-ssh Offer to create missing SSH keys during this run." \
         "  zsh is required and is always set as the login shell when needed."
       exit 0
       ;;
     *)
       err "Unknown option: $arg"
-      printf 'Usage: ./install.sh [-y|--yes] [--verbose] [--setup-ssh]\n' >&2
+      printf 'Usage: ./install.sh [-y|--yes] [--verbose] [--setup-git] [--setup-ssh]\n' >&2
       exit 2
       ;;
   esac
@@ -829,6 +836,10 @@ retire_legacy_path "$HOME/.wezterm.lua" ".wezterm.lua" "WezTerm config lives at 
 step "Git config"
 
 gitconfig_path="$HOME/.config/git/config"
+if [[ "$SETUP_GIT" != "1" ]]; then
+  ok "$(display_config_dir "$gitconfig_path") already configured, leaving it unchanged"
+  info "Run ./install.sh --setup-git to reconfigure Git."
+else
 git_name="${GIT_USER_NAME:-}"
 git_email="${GIT_USER_EMAIL:-}"
 global_ssh_key=""
@@ -925,6 +936,7 @@ if [[ -n "$git_name" && -n "$git_email" ]]; then
   fi
 else
   warn "Skipping ~/.config/git/config generation because git user.name and user.email are required."
+fi
 fi
 
 step "Login shell"
