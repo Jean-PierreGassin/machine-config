@@ -383,6 +383,21 @@ ensure_ssh_key() {
   fi
 }
 
+prepare_ssh_key() {
+  local label="$1"
+  local key_path="$2"
+  local email="$3"
+
+  [[ -n "$key_path" ]] || return 1
+
+  if [[ "$SETUP_SSH" == "1" ]]; then
+    ensure_ssh_key "$label" "$key_path" "$email"
+    return
+  fi
+
+  [[ -e "$key_path" || -L "$key_path" ]]
+}
+
 render_global_gitconfig() {
   local name="$1"
   local email="$2"
@@ -445,7 +460,7 @@ write_scoped_gitconfig() {
     return 0
   fi
 
-  ensure_ssh_key "$label" "$ssh_key" "$email" || ssh_key=""
+  prepare_ssh_key "$label" "$ssh_key" "$email" || ssh_key=""
 
   {
     printf "# ============================================================\n"
@@ -482,21 +497,29 @@ CONFIG_FILES=(
 
 ASSUME_YES=0
 VERBOSE=0
+if [[ -e "$HOME/.config/git/config" || -L "$HOME/.config/git/config" ]]; then
+  SETUP_SSH=0
+else
+  SETUP_SSH=1
+fi
+
 for arg in "$@"; do
   case "$arg" in
     -y|--yes) ASSUME_YES=1 ;;
     --verbose) VERBOSE=1 ;;
+    --setup-ssh) SETUP_SSH=1 ;;
     -h|--help)
       printf '%s\n' \
-        "Usage: ./install.sh [-y|--yes] [--verbose]" \
+        "Usage: ./install.sh [-y|--yes] [--verbose] [--setup-ssh]" \
         "  -y, --yes   Answer yes to ordinary prompts. Git config needs GIT_USER_NAME/GIT_USER_EMAIL; SSH keys need CREATE_SSH_KEYS=1." \
         "  --verbose   Show package manager and installer command output." \
+        "  --setup-ssh Offer to create missing SSH keys during this run." \
         "  zsh is required and is always set as the login shell when needed."
       exit 0
       ;;
     *)
       err "Unknown option: $arg"
-      printf 'Usage: ./install.sh [-y|--yes] [--verbose]\n' >&2
+      printf 'Usage: ./install.sh [-y|--yes] [--verbose] [--setup-ssh]\n' >&2
       exit 2
       ;;
   esac
@@ -830,6 +853,9 @@ if [[ "${ASSUME_YES:-0}" == "1" ]]; then
 else
   info "This writes a machine-local ~/.config/git/config with the identity and repo roots you choose."
   info "Leave work/personal directories blank if this machine only needs one global Git identity."
+  if [[ "$SETUP_SSH" != "1" ]]; then
+    info "SSH key creation is skipped on reruns. Pass --setup-ssh to offer it again."
+  fi
   git_name="$(prompt_required_value "Git user.name" "$(current_git_config_value user.name)")"
   git_email="$(prompt_required_value "Git user.email" "$(current_git_config_value user.email)")"
   work_dir="$(prompt_optional_dir "Work repos directory to use or create" "${work_dir:-~/repos/work}")"
@@ -845,7 +871,9 @@ else
     personal_ssh_key="$(prompt_optional_path "Personal SSH key path" "${personal_ssh_key:-~/.ssh/id_ed25519_personal}")"
   fi
   if [[ -z "$work_dir" && -z "$personal_dir" ]]; then
-    if confirm "Create/check standard global SSH key ~/.ssh/id_ed25519?"; then
+    if [[ "$SETUP_SSH" == "1" ]] && confirm "Create/check standard global SSH key ~/.ssh/id_ed25519?"; then
+      global_ssh_key="$HOME/.ssh/id_ed25519"
+    elif [[ -e "$HOME/.ssh/id_ed25519" || -L "$HOME/.ssh/id_ed25519" ]]; then
       global_ssh_key="$HOME/.ssh/id_ed25519"
     fi
   fi
@@ -877,7 +905,7 @@ if [[ -n "$git_name" && -n "$git_email" ]]; then
     if [[ -n "$work_dir" || -n "$personal_dir" ]]; then
       global_ssh_key=""
     else
-      ensure_ssh_key "global" "$global_ssh_key" "$git_email" || global_ssh_key=""
+      prepare_ssh_key "global" "$global_ssh_key" "$git_email" || global_ssh_key=""
     fi
 
     render_global_gitconfig "$git_name" "$git_email" "$work_dir" "$personal_dir" > "$gitconfig_path"
