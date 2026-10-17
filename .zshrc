@@ -115,6 +115,16 @@ esac
 # --- Misc env --------------------------------------------------------------------
 export CURRENT_UID="${UID}:${GID}"
 
+# --- Claude Code shell compatibility ---------------------------------------------
+# Claude Code writes bash-style commands, and zsh defaults trip them up: an
+# unmatched `?`, `*` or `[...]` in a URL or ref aborts with "no matches found",
+# and a leading `=` expands to a command path. CLAUDECODE is also set in IDE
+# integrated terminals, so keep bash word splitting out of JetBrains ones.
+if [[ -n "${CLAUDECODE:-}" ]]; then
+  setopt NO_NOMATCH NO_EQUALS
+  [[ "${TERMINAL_EMULATOR:-}" != JetBrains* ]] && setopt SH_WORD_SPLIT
+fi
+
 # --- Node (nvm) lazy-load wrapper -----------------------------------------------
 # The default node version's bin dir is already on PATH (set above), so
 # `node`/`npm`/`npx` work immediately without this ever running. The real
